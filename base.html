@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap">
+    <title>Tic-Tac-Toe</title>
+</head>
+<body>
+    <div class="background">
+        <div>
+            <h1 id="current_player_label">Ходит игрок: </h1>
+        </div>    
+        <table>            
+            <tbody id="game_field">
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+<script>
+    const height = 3;
+    const width = 3;
+    const numPlayers = 2;
+    let currentPlayer = 1;
+    const winNumber = 3;
+
+    function displayCurrentPlayer() {
+        current_player_label = document.getElementById('current_player_label');
+        current_player_label.innerHTML = `Ходит игрок: ${currentPlayer}`;
+    }
+
+    function getPlayerColor() {
+        const colors = {1: "#4dff00", 2: "#0000ff", 3: "#f200ff"}
+        if (currentPlayer in colors) {
+            return colors[currentPlayer]
+        } else {
+            //TODO: generate random
+            return "#ffffff"
+        }
+    }
+
+    function cellsEqual(cell1, cell2) {
+        if (cell1.player == -1 || cell2.player == -1) {
+            return false;
+        }
+        return (cell1.player == cell2.player);
+    }
+
+    function checkWinner() {
+        for (let row=0; row < height; row++) {
+            for (let col=0; col < width; col++) {
+                let leftCount = 1;
+                let rightCount = 1;
+                let topCount = 1;
+                let bottomCount = 1; 
+                for (let count=1; count < winNumber; count++) {                
+                    if (col + count < width && cellsEqual(table[row][col], table[row][col + count])) {
+                        rightCount += 1;
+                    }
+                    if (col - count >= 0 && cellsEqual(table[row][col], table[row][col - count])) {
+                        leftCount += 1;
+                    }
+                    if (row + count < height && cellsEqual(table[row][col], table[row + count][col])) {
+                        topCount += 1;
+                    }
+                    if (row - count >= 0 && cellsEqual(table[row][col], table[row - count][col])) {
+                        bottomCount += 1;
+                    }             
+                }
+                console.log(leftCount, rightCount, bottomCount, topCount);
+                if (leftCount == winNumber || rightCount == winNumber || bottomCount == winNumber || topCount == winNumber) {
+                    return table[row][col].player;
+                }                
+            }
+        }
+        return null;
+    } 
+
+    function update() {
+        winner = checkWinner()
+        if (winner) {
+            console.log(`Winner is: ${winner}`);
+        } else {
+            currentPlayer = (currentPlayer + 1) % (numPlayers + 1);
+            if (currentPlayer == 0) {
+                currentPlayer += 1;
+            }
+            displayCurrentPlayer();
+        }
+    }
+
+    function pickCell(td_element, row, col) {
+        console.log(`${row}${col}`);
+        color= getPlayerColor();
+        td_element.style.color = color;
+        table[row][col].player = currentPlayer;
+        update();
+    }
+    
+    function makeField() {
+        let table = Array()
+        gameField = document.getElementById("game_field");
+        
+        for (let row=0; row < height; row++) {
+            let new_row = document.createElement("tr");
+            new_row.id = `row_${row}`
+            gameField.appendChild(new_row);       
+
+            let row_array = Array()
+
+            for (let td=0; td < width; td++) {
+                let new_td = document.createElement("td");
+                new_td.id = `td_${td}`    
+                new_row.appendChild(new_td);              
+                new_td.innerHTML += `${row}${td}`;
+                new_td.addEventListener('click', () => {
+                    pickCell(new_td, row, td);
+                })
+                let td_object = {id: `${row}${td}`, player: -1};
+                row_array.push(td_object);
+            }
+            table.push(row_array);
+        }
+        return table
+    }
+
+    let table = makeField();
+    displayCurrentPlayer();
+    console.log(table);
+</script>
