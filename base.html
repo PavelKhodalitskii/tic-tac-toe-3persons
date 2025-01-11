@@ -10,23 +10,55 @@
 </head>
 <body>
     <div class="background">
-        <div>
-            <h1 id="current_player_label">Ходит игрок: </h1>
-        </div>    
-        <table>            
-            <tbody id="game_field">
-            </tbody>
-        </table>
+        <div id="game_div">
+            <div>
+                <h1 id="current_player_label">Ходит игрок: </h1>
+            </div>    
+            <table>            
+                <tbody id="game_field">
+                </tbody>
+            </table>
+        </div>
+        <div id="result_div" style="display: none;">
+            <h1 id="congrat_messege">Поздравляем с победой, игрок: </h1>
+            <button onclick="start()">Сыграть еще раз</button>
+        </div>
     </div>
 </body>
 </html>
 
 <script>
-    const height = 3;
-    const width = 3;
+    let table;
+    const height = 5;
+    const width = 5;
     const numPlayers = 2;
     let currentPlayer = 1;
     const winNumber = 3;
+
+
+    let game_div = document.getElementById("game_div");
+    let result_div = document.getElementById("result_div");
+
+    function endGame(winner) {  
+        table = Array();
+        currentPlayer = 1;
+        
+        if (game_div.style.display != "none") {
+            game_div.style.display = "none";
+            result_div.style.display = "flex";
+
+            congrats_messege = document.getElementById("congrat_messege");
+
+            if (winner == 0) {
+                congrats_messege.innerHTML = `Ничья. Играйте по новой.`;
+            } else {
+                congrats_messege.innerHTML = `Поздравляем с победой, игрок ${winner}!`;
+                additional_text = document.createElement("p");
+                additional_text.innerHTML = "И вам это нравится, быть умником?";
+                congrats_messege.appendChild(additional_text);
+            }
+        }
+    }
 
     function displayCurrentPlayer() {
         current_player_label = document.getElementById('current_player_label');
@@ -51,38 +83,49 @@
     }
 
     function checkWinner() {
+        let setted_cells = 0;
         for (let row=0; row < height; row++) {
             for (let col=0; col < width; col++) {
-                let leftCount = 1;
-                let rightCount = 1;
-                let topCount = 1;
-                let bottomCount = 1; 
+                if (table[row][col].player != -1) {
+                    setted_cells += 1;
+                    console.log(setted_cells)
+                }
+                let rowCount = 1;
+                let colCount = 1;
+                let dia = 1;
+                let contr_dia = 1;
+
                 for (let count=1; count < winNumber; count++) {                
                     if (col + count < width && cellsEqual(table[row][col], table[row][col + count])) {
-                        rightCount += 1;
-                    }
-                    if (col - count >= 0 && cellsEqual(table[row][col], table[row][col - count])) {
-                        leftCount += 1;
-                    }
-                    if (row + count < height && cellsEqual(table[row][col], table[row + count][col])) {
-                        topCount += 1;
+                        rowCount += 1;
                     }
                     if (row - count >= 0 && cellsEqual(table[row][col], table[row - count][col])) {
-                        bottomCount += 1;
-                    }             
+                        colCount += 1;
+                    }
+                    if (row + count < height && col + count < width && cellsEqual(table[row][col], table[row + count][col + count])) {
+                        dia += 1;
+                    }
+                    if (row - count >= 0 && col + count < width && cellsEqual(table[row][col], table[row - count][col + count])) {
+                        contr_dia += 1;
+                    }
                 }
-                console.log(leftCount, rightCount, bottomCount, topCount);
-                if (leftCount == winNumber || rightCount == winNumber || bottomCount == winNumber || topCount == winNumber) {
+                if (rowCount == winNumber || colCount == winNumber || dia == winNumber || contr_dia == winNumber) {
                     return table[row][col].player;
-                }                
+                }          
             }
         }
+
+        if (setted_cells == height * width) {
+            return 0;
+        }
+
         return null;
     } 
 
     function update() {
         winner = checkWinner()
-        if (winner) {
+        if (winner != null) {
+            endGame(winner);
             console.log(`Winner is: ${winner}`);
         } else {
             currentPlayer = (currentPlayer + 1) % (numPlayers + 1);
@@ -94,9 +137,12 @@
     }
 
     function pickCell(td_element, row, col) {
-        console.log(`${row}${col}`);
-        color= getPlayerColor();
-        td_element.style.color = color;
+        cell = table[row][col]
+        if (cell.player != -1) {
+            return
+        }
+        color = getPlayerColor();
+        td_element.style.backgroundColor = color;
         table[row][col].player = currentPlayer;
         update();
     }
@@ -104,6 +150,7 @@
     function makeField() {
         let table = Array()
         gameField = document.getElementById("game_field");
+        gameField.innerHTML = "";
         
         for (let row=0; row < height; row++) {
             let new_row = document.createElement("tr");
@@ -116,7 +163,7 @@
                 let new_td = document.createElement("td");
                 new_td.id = `td_${td}`    
                 new_row.appendChild(new_td);              
-                new_td.innerHTML += `${row}${td}`;
+                // new_td.innerHTML += `${row}${td}`;
                 new_td.addEventListener('click', () => {
                     pickCell(new_td, row, td);
                 })
@@ -128,7 +175,15 @@
         return table
     }
 
-    let table = makeField();
-    displayCurrentPlayer();
-    console.log(table);
+    function start() {
+        if (game_div.style.display == "none") {
+            game_div.style.display = "flex";
+            result_div.style.display = "none";
+        }
+
+        displayCurrentPlayer();
+        table = makeField();
+    }
+
+   start();
 </script>

@@ -3,6 +3,13 @@ body {
     margin: 0;
 }
 
+h1 {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 30pt;
+    color: white;
+    text-align: center;
+}
+
 p {
     font-family: 'Roboto', sans-serif;
     font-size: 14pt;
@@ -36,6 +43,12 @@ td {
     text-align: center;
 }
 
+button {
+    border-radius: 10px;
+    max-height: 90px;
+    max-width: 300px;
+}
+
 .background {
     height: 100vh;    
     background: linear-gradient(to top right, #00ff2a, #ff6f00, #ff5e00, #ff0080, #cc00ff);
@@ -45,4 +58,28 @@ td {
     align-items: center;
     background-size: 400% 400%;
     animation: gradient 20s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+#result_div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#game_div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
